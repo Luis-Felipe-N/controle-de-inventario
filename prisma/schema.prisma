@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum OrderStatus {
+  OPEN
+  CLOSE
+}
+
+model Product {
+  id     String  @id @default(uuid())
+  image  String
+  name   String
+  price  Float
+  unit   Int
+  active Boolean @default(true)
+
+  orders  OrderItem[]
+  entries Stock[]
+
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@map("products")
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  products Product[]
+
+  @@map("categories")
+}
+
+model Stock {
+  id        String   @id @default(uuid())
+  quantity  Float
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id       String      @id @default(uuid())
+  customer String
+  price    Float
+  openedAt DateTime    @default(now()) @map("opened_at")
+  closedAt DateTime?   @map("closed_at")
+  status   OrderStatus @default(OPEN)
+  items    OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id       String @id @default(uuid())
+  quantity Int
+  price    Float
+
+  orderId String @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}

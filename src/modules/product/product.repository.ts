@@ -1,27 +1,50 @@
 import prisma from "@/lib/prisma"
+import { Prisma, Product } from "@prisma/client"
 
-export const ProductRepository = {
-    findAll: () => prisma.product.findMany(),
+export class ProductRepository {
+    async create(data: Prisma.ProductCreateInput) {
+        const product = await prisma.product.create({
+            data,
+        })
 
-    findById: (id: string) => prisma.product.findUnique({
-        where: { id },
-    }),
+        return product
+    }
 
-    create: (data: {
-        name: string
-        price: number
-        unit: number
-        image: string
-        categoryId: string
-    }) => prisma.product.create({
-        data,
-    }),
-
-    update: (id: string, data: Partial<{ name: string; price: number; unit: number; image: string; categoryId: string }>) =>
-        prisma.product.update({
+    async updateProduct(id: string, data: Partial<Product>): Promise<Product | null> {
+        const updatedProduct = await prisma.product.update({
             where: { id },
             data,
-        }),
+        });
 
-    delete: (id: string) => prisma.product.delete({ where: { id } }),
+        return updatedProduct;
+    }
+
+    async searchMany(query: string, page: number) {
+        const products = await prisma.product.findMany({
+            where: {
+                name: {
+                    contains: query,
+                    mode: "insensitive"
+                },
+            },
+            skip: (page - 1) * 20,
+            take: 20,
+        })
+
+        return products
+    }
+
+    async findManyByCategoryName(categoryName: string, page: number) {
+        const products = await prisma.product.findMany({
+            where: {
+                category: {
+                    name: categoryName
+                },
+            },
+            skip: (page - 1) * 20,
+            take: 20,
+        })
+
+        return products
+    }
 }

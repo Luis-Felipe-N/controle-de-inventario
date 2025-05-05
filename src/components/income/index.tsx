@@ -32,7 +32,7 @@ type CardProps = React.ComponentProps<typeof Card>
 
 export function Income({ className, ...props }: CardProps) {
     return (
-        <Card className={cn("w-[380px]", className)} {...props}>
+        <Card className={cn("", className)} {...props}>
             <CardHeader>
                 <CardTitle>Desempenho Financeiro — Maio</CardTitle>
                 <CardDescription>Resumo dos ganhos obtidos ao longo do mês.</CardDescription>

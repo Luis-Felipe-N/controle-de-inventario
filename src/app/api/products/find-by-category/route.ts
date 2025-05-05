@@ -1,22 +1,20 @@
-import { ProductService } from '@/modules/product/product.service'
+
+import { FetchProductsByCategoryService } from '@/modules/product/services/fetch-products-by-category.service'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
-    const pageStr = request.nextUrl.searchParams.get('page')
-    const limitStr = request.nextUrl.searchParams.get('limit')
+    const category = request.nextUrl.searchParams.get('category')
+    const page = request.nextUrl.searchParams.get('page')
 
-    const page = pageStr ? parseInt(pageStr, 10) : 1
-    const limit = limitStr ? parseInt(limitStr, 10) : 10
-    const skip = (page - 1) * limit
-
-    const products = await ProductService.fetchProductsByCategory()
+    const service = new FetchProductsByCategoryService()
+    const products = await service.execute({ category: category ?? "", page: page ? parseInt(page, 10) : 1 })
 
     return NextResponse.json(
         {
-            reviews,
+            products,
         },
         {
-            status: 201,
+            status: 200,
         },
     )
 }

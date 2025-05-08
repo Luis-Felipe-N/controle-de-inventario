@@ -1,30 +1,37 @@
-import { Income } from "@/components/income";
+import { ListOrders } from "@/components/orders/list-products";
 import { ListProducts } from "@/components/products/list-products";
 import { formatDate } from "@/lib/utils/fomat-date";
-import { getProduct } from "@/server/actions/products/get-products";
+import { getOrders } from "@/server/actions/orders/get-orders";
+import { getProducts } from "@/server/actions/products/get-products";
 
-async function search(keyword: string) {
-  const products = await getProduct(keyword)
+async function fetchProducts(keyword: string) {
+  const products = await getProducts(keyword)
 
   return products
 }
 
+async function fetchOrders(status: "OPEN" | "CLOSE") {
+  const orders = await getOrders(status)
+
+  return orders
+}
+
 export default async function Home() {
-
-
-
-  const products = await search('coca')
+  const products = await fetchProducts('coca')
+  const orders = await fetchOrders('OPEN')
 
   return (
-    <div className="bg-slate-50 p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <div className="bg-slate-100 p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <div className="space-y-4">
+        <div className="space-y-4 mb-4">
           <h1>Inventário {formatDate(new Date())}</h1>
           <h1 className="text-4xl font-bold">Distribuidora Bebidas</h1>
         </div>
 
+        <ListOrders orders={orders} />
+
+
         <ListProducts products={products} />
-        <Income />
       </main>
     </div>
   );

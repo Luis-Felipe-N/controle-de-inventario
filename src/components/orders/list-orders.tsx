@@ -2,6 +2,7 @@
 import { formatDate } from "@/lib/utils/fomat-date";
 import { getOrders } from "@/server/actions/orders/get-orders";
 import { Order, OrderItem } from "@prisma/client";
+import UpdateOrderDialog from "./update-order";
 
 interface SearchResultsProps {
     orders: Order[]
@@ -24,7 +25,7 @@ export async function ListOrders() {
     return (
         <div className="mb-8">
             <strong className="mb-2 block text-2xl">Comandas abertas</strong>
-            <ul className="grid gap-2 lg:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]">
+            <ul className=" flex gap-2 lg:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] md:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]">
                 {orders.map(order => (
                     <li key={order.id} className="bg-white p-3">
                         <div className="text-center">
@@ -39,10 +40,11 @@ export async function ListOrders() {
                                     </span>
                                     <span className="flex-1 block w-40 truncate text-base">{item.product.name}</span>
                                     <span className="me-6 block">1</span>
-                                    <span>R$ {item.product.price}</span>
+                                    <span>R$ {item.price}</span>
                                 </li>
                             ))}
                         </ul>
+                        <UpdateOrderDialog />
                     </li>
                 ))}
             </ul >

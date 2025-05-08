@@ -1,4 +1,4 @@
-import { ListOrders } from "@/components/orders/list-products";
+import { ListOrders } from "@/components/orders/list-orders";
 import { ListProducts } from "@/components/products/list-products";
 import { formatDate } from "@/lib/utils/fomat-date";
 import { getOrders } from "@/server/actions/orders/get-orders";
@@ -10,15 +10,11 @@ async function fetchProducts(keyword: string) {
   return products
 }
 
-async function fetchOrders(status: "OPEN" | "CLOSE") {
-  const orders = await getOrders(status)
 
-  return orders
-}
 
 export default async function Home() {
   const products = await fetchProducts('coca')
-  const orders = await fetchOrders('OPEN')
+
 
   return (
     <div className="bg-slate-100 p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -28,9 +24,7 @@ export default async function Home() {
           <h1 className="text-4xl font-bold">Distribuidora Bebidas</h1>
         </div>
 
-        <ListOrders orders={orders} />
-
-
+        <ListOrders />
         <ListProducts products={products} />
       </main>
     </div>

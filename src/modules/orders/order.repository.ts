@@ -31,26 +31,23 @@ export class OrderRepository {
     }
 
     async searchMany(page: number) {
-        const orders = await Promise.all([
-            prisma.order.findMany({
-                skip: (page - 1) * 20,
-                take: 20,
-                orderBy: { openedAt: "desc" },
-                include: {
-                    items: {
-                        include: {
-                            product: true,
-                        },
+        const orders = await prisma.order.findMany({
+            skip: (page - 1) * 20,
+            take: 20,
+            orderBy: { openedAt: "desc" },
+            include: {
+                items: {
+                    include: {
+                        product: true,
                     },
                 },
-            }),
-            prisma.order.count(),
-        ])
+            },
+        })
 
         return orders
     }
 
-    async findByStatus(status: "OPEN" | "CLOSE", page: number) {
+    async findManyByStatus(status: "OPEN" | "CLOSE", page: number) {
         const orders = await Promise.all([
             prisma.order.findMany({
                 where: { status },

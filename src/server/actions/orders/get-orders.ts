@@ -1,7 +1,7 @@
 import { api } from "@/lib/api"
 
-export async function getProducts(keyword = '') {
-    const response = await api(`/products?keyword=${keyword}`, {
+export async function getOrders(status: "OPEN" | "CLOSE") {
+    const response = await api(`/orders?status=${status}`, {
         next: {
             revalidate: 60 * 60, // 1 hours
         },
@@ -9,5 +9,5 @@ export async function getProducts(keyword = '') {
 
     const responseJson = await response.json()
 
-    return responseJson.products
+    return responseJson.orders
 }

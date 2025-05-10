@@ -1,16 +1,15 @@
 
 import { formatDate } from "@/lib/utils/fomat-date";
 import { getOrders } from "@/server/actions/orders/get-orders";
-import { Order, OrderItem } from "@prisma/client";
-import UpdateOrderDialog from "./update-order";
 
-interface SearchResultsProps {
-    orders: Order[]
-}
+import UpdateOrderDialog from "./update-order";
+import { Order } from "@/types";
+import { formatCurrency } from "@/lib/utils/format-currency";
 
 interface FetchOrdersResponse extends Order {
-    items: OrderItem[]
+
 }
+
 
 async function fetchOrders(status: "OPEN" | "CLOSE"): Promise<FetchOrdersResponse[]> {
     const orders = await getOrders(status)
@@ -20,8 +19,9 @@ async function fetchOrders(status: "OPEN" | "CLOSE"): Promise<FetchOrdersRespons
 
 export async function ListOrders() {
     const orders = await fetchOrders('OPEN')
-    console.log(orders[0].items)
+
     if (orders && !orders.length) { return null }
+
     return (
         <div className="mb-8">
             <strong className="mb-2 block text-2xl">Comandas abertas</strong>
@@ -39,12 +39,12 @@ export async function ListOrders() {
                                         <img className="h-[40px] w-[40px] object-contain" src={item.product.image} alt="" />
                                     </span>
                                     <span className="flex-1 block w-40 truncate text-base">{item.product.name}</span>
-                                    <span className="me-6 block">1</span>
-                                    <span>R$ {item.price}</span>
+                                    <span className="me-6 block">{item.quantity}</span>
+                                    <span>R$ {formatCurrency(item.product.price)}</span>
                                 </li>
                             ))}
                         </ul>
-                        <UpdateOrderDialog />
+                        <UpdateOrderDialog order={order} />
                     </li>
                 ))}
             </ul >

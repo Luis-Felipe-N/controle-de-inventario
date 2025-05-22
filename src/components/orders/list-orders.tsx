@@ -1,26 +1,16 @@
+'use client'
+import { useListOrders } from "@/hooks/use-list-orders";
 
+import { formatCurrency } from "@/lib/utils/format-currency";
 import { formatDate } from "@/lib/utils/fomat-date";
-import { getOrders } from "@/server/actions/orders/get-orders";
 
 import UpdateOrderDialog from "./update-order";
-import { Order } from "@/types";
-import { formatCurrency } from "@/lib/utils/format-currency";
 
-interface FetchOrdersResponse extends Order {
+export function ListOrders() {
+    const { data: orders, isLoading, error } = useListOrders("OPEN")
 
-}
-
-
-async function fetchOrders(status: "OPEN" | "CLOSE"): Promise<FetchOrdersResponse[]> {
-    const orders = await getOrders(status)
-
-    return orders
-}
-
-export async function ListOrders() {
-    const orders = await fetchOrders('OPEN')
-
-    if (orders && !orders.length) { return null }
+    if (!orders) { return null }
+    console.log(!!orders)
 
     return (
         <div className="mb-8">
@@ -29,6 +19,7 @@ export async function ListOrders() {
                 {orders.map(order => (
                     <li key={order.id} className="bg-white p-3">
                         <div className="text-center">
+                            <h1>R$ {order.price}</h1>
                             <h2>{order.customer}</h2>
                             <small>Aberta às {formatDate(new Date(order.openedAt), true)}</small>
                         </div>
@@ -40,7 +31,7 @@ export async function ListOrders() {
                                     </span>
                                     <span className="flex-1 block w-40 truncate text-base">{item.product.name}</span>
                                     <span className="me-6 block">{item.quantity}</span>
-                                    <span>R$ {formatCurrency(item.product.price)}</span>
+                                    <span>R$ {formatCurrency(item.price)}</span>
                                 </li>
                             ))}
                         </ul>

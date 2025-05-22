@@ -1,20 +1,16 @@
 'use client'
-import Image from "next/image";
 
 import { Product } from "@prisma/client";
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 
-// import required modules
-import { Pagination } from 'swiper/modules';
-interface SearchResultsProps {
+interface ListProductsProps {
     products: Product[]
 }
 
-export function ListProducts({ products }: SearchResultsProps) {
+export function ListProducts({ products }: ListProductsProps) {
     if (products && !products.length) { return null }
 
     return (

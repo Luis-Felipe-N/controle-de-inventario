@@ -1,5 +1,3 @@
-'use client'
-
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -12,18 +10,20 @@ import {
 } from "@/components/ui/dialog"
 import { Order } from "@/types"
 import { Label } from "../ui/label"
-import { Input } from "../ui/input"
 import { formatCurrency } from "@/lib/utils/format-currency"
 import { useState } from "react"
+import { SearchProduct } from "./search-product"
 import UpdateQuantity from "./update-quantity"
-
+import { UpdateOrderSchema } from "@/schemas/update-order-schema"
+import { Loader2 } from "lucide-react"
+import { queryClient } from "@/providers/useQueryProvider"
 
 interface UpdateOrderDialogProps {
     order: Order
 }
 
 export default function UpdateOrderDialog({ order }: UpdateOrderDialogProps) {
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [quantities, setQuantities] = useState(
         () => order.items.map(item => item.quantity)
     )
@@ -40,10 +40,48 @@ export default function UpdateOrderDialog({ order }: UpdateOrderDialogProps) {
         acc + item.product.price * quantities[idx], 0
     )
 
+    const handleUpdateOrder = async () => {
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
+
+        const payload = {
+            orderId: order.id,
+            items: order.items.map((item, idx) => ({
+                orderItemId: item.id,
+                quantity: quantities[idx],
+            })),
+        }
+
+        const parsed = UpdateOrderSchema.safeParse(payload)
+
+        if (!parsed.success) {
+            console.error(parsed.error.format())
+            alert("Erro na validação dos dados")
+            return
+        }
+
+        try {
+            await fetch(`/api/orders/update/${order.id}`, {
+                method: "PUT",
+                body: JSON.stringify(parsed.data),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+
+            queryClient.invalidateQueries({
+                queryKey: ["orders", "OPEN"]
+            })
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline">Edit Profile</Button>
+                <Button className="mt-2 w-full" variant="outline">Atualizar Comanda</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -57,11 +95,7 @@ export default function UpdateOrderDialog({ order }: UpdateOrderDialogProps) {
                         <Label htmlFor="link" className="sr-only">
                             Pesquisar produto
                         </Label>
-                        <Input
-                            id="link"
-                            defaultValue="https://ui.shadcn.com/docs/installation"
-                            readOnly
-                        />
+                        <SearchProduct />
                     </div>
                 </div>
                 <ul className="mt-4 space-y-6 text-black/60">
@@ -92,7 +126,16 @@ export default function UpdateOrderDialog({ order }: UpdateOrderDialogProps) {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="submit">Save changes</Button>
+                    {isSubmitting ? (
+                        <Button type="submit" disabled>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Carregando
+                        </Button>
+                    ) : (
+                        <Button type="submit" onClick={handleUpdateOrder}>
+                            <span>Salvar</span>
+                        </Button>
+                    )}
                 </DialogFooter>
             </DialogContent>
         </Dialog>

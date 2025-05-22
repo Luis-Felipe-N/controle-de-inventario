@@ -10,7 +10,7 @@ export class ProductRepository {
         return product
     }
 
-    async updateProduct(id: string, data: Partial<Product>): Promise<Product | null> {
+    async update(id: string, data: Partial<Product>): Promise<Product | null> {
         const updatedProduct = await prisma.product.update({
             where: { id },
             data,
@@ -46,5 +46,15 @@ export class ProductRepository {
         })
 
         return products
+    }
+
+    async findById(id: string) {
+        const product = await prisma.product.findUnique({
+            where: {
+                id
+            }
+        })
+
+        return product
     }
 }

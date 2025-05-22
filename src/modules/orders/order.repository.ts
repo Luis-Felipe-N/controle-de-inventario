@@ -1,8 +1,16 @@
 import prisma from "@/lib/prisma"
-import { Prisma, Order } from "@prisma/client"
+import { Order } from "@/types"
+import { Prisma, Order as OrderPrisma } from "@prisma/client"
+
+interface ItemDataToUpdate {
+    id: string; // ID do OrderItem
+    quantity: number;
+    price: number;
+}
+
 
 export class OrderRepository {
-    async create(data: Prisma.OrderCreateInput): Promise<Order> {
+    async create(data: Prisma.OrderCreateInput): Promise<OrderPrisma> {
         const order = await prisma.order.create({
             data,
             include: {
@@ -70,7 +78,7 @@ export class OrderRepository {
         return orders
     }
 
-    async update(id: string, data: Partial<Order>): Promise<Order | null> {
+    async update(id: string, data: Partial<OrderPrisma>): Promise<OrderPrisma | null> {
         const order = await prisma.order.update({
             where: { id },
             data,
@@ -85,4 +93,39 @@ export class OrderRepository {
         return order
     }
 
+    async updateOrderAndItems(
+        orderId: string,
+        orderData: Partial<Order>,
+        itemsToUpdate: ItemDataToUpdate[] // Recebe os itens já processados
+    ): Promise<Order | null> {
+        try {
+            const orderUpdated = await prisma.order.update({
+                where: { id: orderId },
+                data: {
+                    ...orderData,
+                    items: {
+                        update: itemsToUpdate.map((item) => ({
+                            where: { id: item.id },
+                            data: {
+                                quantity: item.quantity,
+                                price: item.price
+                            },
+                        })),
+                    },
+                },
+                include: {
+                    items: {
+                        include: {
+                            product: true,
+                        },
+                    },
+                },
+            })
+
+            return orderUpdated
+        } catch (error) {
+            console.error("Erro ao atualizar pedido e itens no repositório:", error);
+            return null; // Ou relance o erro, dependendo da sua estratégia de tratamento de erros
+        }
+    }
 }

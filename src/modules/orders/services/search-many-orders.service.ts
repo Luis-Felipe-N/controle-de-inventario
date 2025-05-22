@@ -2,7 +2,6 @@ import { OrderRepository } from "../order.repository"
 
 
 interface SearchOrdersRequest {
-
     page: number
 }
 

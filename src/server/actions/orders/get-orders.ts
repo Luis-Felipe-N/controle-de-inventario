@@ -8,6 +8,6 @@ export async function getOrders(status: "OPEN" | "CLOSE") {
     })
 
     const responseJson = await response.json()
-
+    console.log({ responseJson })
     return responseJson.orders
 }

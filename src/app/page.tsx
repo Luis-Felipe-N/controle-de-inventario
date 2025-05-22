@@ -10,10 +10,8 @@ async function fetchProducts(keyword: string) {
   return products
 }
 
-
-
 export default async function Home() {
-  const products = await fetchProducts('coca')
+  const products = await fetchProducts("")
 
 
   return (
